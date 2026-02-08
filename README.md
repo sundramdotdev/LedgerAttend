@@ -23,6 +23,17 @@ College clubs and student chapters currently face three major pain points:
 
 ---
 
+---
+
+## 📱 App Screenshots
+
+| Admin Dashboard | Event Geofencing | Selfie Verification |
+| :---: | :---: | :---: |
+| <img src="screenshots/admin_dashboard.png" width="200" /> | <img src="screenshots/add_member.png" width="200" /> | <img src="screenshots/create_event.png" width="200" /> |
+| **Admin Dashboard** | **Add Member** | **Create Event** |
+
+---
+
 ## 🛠️ Proposed Tech Stack
 * **Frontend:** Flutter (Android & iOS)
 * **Backend:** Firebase (Auth, Firestore, Cloud Functions)
