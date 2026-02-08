@@ -41,7 +41,7 @@ class DefaultFirebaseOptions {
     }
   }
 
-  static const FirebaseOptions web = FirebaseOptions(
+  static FirebaseOptions web = FirebaseOptions(
     apiKey: dotenv.env['WEB_API_KEY']!,
     appId: '1:755558265763:web:182b32a3766b585a842016',
     messagingSenderId: '755558265763',
@@ -50,7 +50,7 @@ class DefaultFirebaseOptions {
     storageBucket: 'ledgerattend.firebasestorage.app',
   );
 
-  static const FirebaseOptions android = FirebaseOptions(
+  static FirebaseOptions android = FirebaseOptions(
     apiKey: dotenv.env['ANDROID_API_KEY']!,
     appId: '1:755558265763:android:98eba1b768cf8ea4842016',
     messagingSenderId: '755558265763',
@@ -58,7 +58,7 @@ class DefaultFirebaseOptions {
     storageBucket: 'ledgerattend.firebasestorage.app',
   );
 
-  static const FirebaseOptions ios = FirebaseOptions(
+  static FirebaseOptions ios = FirebaseOptions(
     apiKey: dotenv.env['IOS_API_KEY']!,
     appId: '1:755558265763:ios:cf7ceece6bbea5af842016',
     messagingSenderId: '755558265763',
@@ -67,7 +67,7 @@ class DefaultFirebaseOptions {
     iosBundleId: 'com.example.ledgerAttend',
   );
 
-  static const FirebaseOptions macos = FirebaseOptions(
+  static FirebaseOptions macos = FirebaseOptions(
     apiKey: dotenv.env['IOS_API_KEY']!,
     appId: '1:755558265763:ios:cf7ceece6bbea5af842016',
     messagingSenderId: '755558265763',
@@ -76,7 +76,7 @@ class DefaultFirebaseOptions {
     iosBundleId: 'com.example.ledgerAttend',
   );
 
-  static const FirebaseOptions windows = FirebaseOptions(
+  static FirebaseOptions windows = FirebaseOptions(
     apiKey: dotenv.env['WINDOWS_API_KEY']!,
     appId: '1:755558265763:web:7fef0b4996e3457f842016',
     messagingSenderId: '755558265763',
