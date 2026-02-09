@@ -38,12 +38,6 @@ College clubs and student chapters currently face three major pain points:
 * **Frontend:** Flutter (Android & iOS)
 * **Backend:** Firebase (Auth, Firestore, Cloud Functions)
 * **API:** Google Maps/Location Services
-
----
-
-## Idea Credit
-This project concept was developed in collaboration with **Gemini (Google AI)**, designed to be a high-impact project for the Indian student developer ecosystem.
-
 ---
 
 ## Connect With Me
