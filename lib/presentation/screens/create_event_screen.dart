@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:geolocator/geolocator.dart';
 
 class CreateEventScreen extends StatefulWidget {
   const CreateEventScreen({super.key});
@@ -13,42 +15,83 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _eventNameController = TextEditingController();
   final TextEditingController _eventDescriptionController = TextEditingController();
+  final MapController _mapController = MapController();
 
-  // Default location (e.g., New Delhi)
-  final LatLng _defaultLocation = const LatLng(28.6139, 77.2090);
+  // Default location (fallback)
+  LatLng _initialCenter = const LatLng(28.6139, 77.2090); 
   LatLng? _selectedLocation;
-  Set<Marker> _markers = {};
-  Set<Circle> _circles = {};
   double _radius = 100.0; // Default radius in meters
+  bool _isLoadingLocation = true;
 
-  void _updateCircle() {
-    if (_selectedLocation != null) {
-      setState(() {
-        _circles = {
-          Circle(
-            circleId: const CircleId('event-radius'),
-            center: _selectedLocation!,
-            radius: _radius,
-            fillColor: Colors.blue.withValues(alpha: 0.2),
-            strokeColor: Colors.blue,
-            strokeWidth: 2,
-          ),
-        };
-      });
+  @override
+  void initState() {
+    super.initState();
+    _getCurrentLocation();
+  }
+
+  Future<void> _getCurrentLocation() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      if(mounted) {
+         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Location services are disabled. Using default location.'),
+        ));
+      }
+      setState(() => _isLoadingLocation = false);
+      return;
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+         if(mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+              content: Text('Location permissions are denied. Using default location.'),
+            ));
+         }
+        setState(() => _isLoadingLocation = false);
+        return;
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+       if(mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('Location permissions are permanently denied. Using default location.'),
+          ));
+       }
+      setState(() => _isLoadingLocation = false);
+      return;
+    }
+
+    try {
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+      if (mounted) {
+        setState(() {
+          _initialCenter = LatLng(position.latitude, position.longitude);
+          _selectedLocation = _initialCenter; // Auto-select current location
+          _isLoadingLocation = false;
+        });
+        // Move map after frame build
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+            _mapController.move(_initialCenter, 16.0);
+        });
+      }
+    } catch (e) {
+      debugPrint("Error getting location: $e");
+      if (mounted) setState(() => _isLoadingLocation = false);
     }
   }
 
-  void _onTap(LatLng position) {
+  void _onTap(TapPosition tapPosition, LatLng point) {
     setState(() {
-      _selectedLocation = position;
-      _markers = {
-        Marker(
-          markerId: const MarkerId('selected-location'),
-          position: position,
-          infoWindow: const InfoWindow(title: 'Event Location'),
-        ),
-      };
-      _updateCircle();
+      _selectedLocation = point;
     });
   }
 
@@ -69,6 +112,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
               _selectedLocation!.latitude, _selectedLocation!.longitude),
           'radius': _radius,
           'createdAt': FieldValue.serverTimestamp(),
+          'isActive': true, // Mark event as active
         });
 
         if (mounted) {
@@ -91,6 +135,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
   void dispose() {
     _eventNameController.dispose();
     _eventDescriptionController.dispose();
+    _mapController.dispose();
     super.dispose();
   }
 
@@ -100,7 +145,9 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
       appBar: AppBar(
         title: const Text('Create Event'),
       ),
-      body: SingleChildScrollView(
+      body: _isLoadingLocation 
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
         child: Column(
           children: [
             Padding(
@@ -154,16 +201,47 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
             const SizedBox(height: 8),
             SizedBox(
               height: 300,
-              child: GoogleMap(
-                initialCameraPosition: CameraPosition(
-                  target: _defaultLocation,
-                  zoom: 15.0,
+              child: FlutterMap(
+                mapController: _mapController,
+                options: MapOptions(
+                  initialCenter: _initialCenter,
+                  initialZoom: 16.0,
+                  onTap: _onTap,
                 ),
-                markers: _markers,
-                circles: _circles,
-                onTap: _onTap,
-                myLocationEnabled: true,
-                myLocationButtonEnabled: true,
+                children: [
+                  TileLayer(
+                    urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    userAgentPackageName: 'com.example.ledger_attend',
+                  ),
+                  if (_selectedLocation != null) ...[
+                    CircleLayer(
+                      circles: [
+                        CircleMarker(
+                          point: _selectedLocation!,
+                          color: Colors.blue.withValues(alpha: 0.3),
+                          borderStrokeWidth: 2,
+                          borderColor: Colors.blue,
+                          useRadiusInMeter: true,
+                          radius: _radius,
+                        ),
+                      ],
+                    ),
+                    MarkerLayer(
+                      markers: [
+                        Marker(
+                          point: _selectedLocation!,
+                          width: 80,
+                          height: 80,
+                          child: const Icon(
+                            Icons.location_on,
+                            color: Colors.red,
+                            size: 40,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ],
               ),
             ),
             if (_selectedLocation != null) ...[
@@ -182,14 +260,13 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                     Text('Event Radius: ${_radius.round()} meters'),
                     Slider(
                       value: _radius,
-                      min: 50,
-                      max: 1000,
-                      divisions: 19,
+                      min: 10,
+                      max: 500,
+                      divisions: 49, // (500-10)/10 = 49 steps roughly
                       label: '${_radius.round()}m',
                       onChanged: (value) {
                         setState(() {
                           _radius = value;
-                          _updateCircle();
                         });
                       },
                     ),

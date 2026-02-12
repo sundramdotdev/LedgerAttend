@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:ledger_attend/presentation/screens/login_screen.dart'; // Import LoginScreen
 import 'firebase_options.dart';
 import 'presentation/screens/admin_dashboard.dart';
 import 'presentation/screens/create_event_screen.dart';
 import 'presentation/screens/add_member_screen.dart';
 import 'presentation/screens/member_list_screen.dart';
+import 'presentation/screens/attendance_verification_screen.dart';
+import 'presentation/screens/admin_reports_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -46,13 +49,15 @@ class LedgerAttendApp extends StatelessWidget {
         useMaterial3: true,
       ),
       // Define the starting screen
-      initialRoute: '/',
+      home: const LoginScreen(), // Set directly to LoginScreen
       // Register named routes
       routes: {
-        '/': (context) => const AdminDashboard(),
+        '/admin-dashboard': (context) => const AdminDashboard(),
         '/create-event': (context) => const CreateEventScreen(),
         '/add-member': (context) => const AddMemberScreen(),
         '/member-list': (context) => const MemberListScreen(),
+        '/attendance-verification': (context) => const AttendanceVerificationScreen(eventId: 'test_event'),
+        '/admin-reports': (context) => const AdminReportsScreen(),
       },
     );
   }

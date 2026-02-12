@@ -43,45 +43,45 @@ class DefaultFirebaseOptions {
 
   static FirebaseOptions web = FirebaseOptions(
     apiKey: dotenv.env['WEB_API_KEY']!,
-    appId: '1:755558265763:web:182b32a3766b585a842016',
-    messagingSenderId: '755558265763',
-    projectId: 'ledgerattend',
-    authDomain: 'ledgerattend.firebaseapp.com',
-    storageBucket: 'ledgerattend.firebasestorage.app',
+    appId: dotenv.env['FIREBASE_APP_ID_WEB']!,
+    messagingSenderId: dotenv.env['FIREBASE_MESSAGING_SENDER_ID']!,
+    projectId: dotenv.env['FIREBASE_PROJECT_ID']!,
+    authDomain: dotenv.env['FIREBASE_AUTH_DOMAIN'],
+    storageBucket: dotenv.env['FIREBASE_STORAGE_BUCKET'],
   );
 
   static FirebaseOptions android = FirebaseOptions(
     apiKey: dotenv.env['ANDROID_API_KEY']!,
-    appId: '1:755558265763:android:98eba1b768cf8ea4842016',
-    messagingSenderId: '755558265763',
-    projectId: 'ledgerattend',
-    storageBucket: 'ledgerattend.firebasestorage.app',
+    appId: dotenv.env['FIREBASE_APP_ID_ANDROID']!,
+    messagingSenderId: dotenv.env['FIREBASE_MESSAGING_SENDER_ID']!,
+    projectId: dotenv.env['FIREBASE_PROJECT_ID']!,
+    storageBucket: dotenv.env['FIREBASE_STORAGE_BUCKET'],
   );
 
   static FirebaseOptions ios = FirebaseOptions(
     apiKey: dotenv.env['IOS_API_KEY']!,
-    appId: '1:755558265763:ios:cf7ceece6bbea5af842016',
-    messagingSenderId: '755558265763',
-    projectId: 'ledgerattend',
-    storageBucket: 'ledgerattend.firebasestorage.app',
-    iosBundleId: 'com.example.ledgerAttend',
+    appId: dotenv.env['FIREBASE_APP_ID_IOS']!,
+    messagingSenderId: dotenv.env['FIREBASE_MESSAGING_SENDER_ID']!,
+    projectId: dotenv.env['FIREBASE_PROJECT_ID']!,
+    storageBucket: dotenv.env['FIREBASE_STORAGE_BUCKET'],
+    iosBundleId: dotenv.env['FIREBASE_IOS_BUNDLE_ID'],
   );
 
   static FirebaseOptions macos = FirebaseOptions(
     apiKey: dotenv.env['IOS_API_KEY']!,
-    appId: '1:755558265763:ios:cf7ceece6bbea5af842016',
-    messagingSenderId: '755558265763',
-    projectId: 'ledgerattend',
-    storageBucket: 'ledgerattend.firebasestorage.app',
-    iosBundleId: 'com.example.ledgerAttend',
+    appId: dotenv.env['FIREBASE_APP_ID_IOS']!,
+    messagingSenderId: dotenv.env['FIREBASE_MESSAGING_SENDER_ID']!,
+    projectId: dotenv.env['FIREBASE_PROJECT_ID']!,
+    storageBucket: dotenv.env['FIREBASE_STORAGE_BUCKET'],
+    iosBundleId: dotenv.env['FIREBASE_IOS_BUNDLE_ID'],
   );
 
   static FirebaseOptions windows = FirebaseOptions(
     apiKey: dotenv.env['WINDOWS_API_KEY']!,
-    appId: '1:755558265763:web:7fef0b4996e3457f842016',
-    messagingSenderId: '755558265763',
-    projectId: 'ledgerattend',
-    authDomain: 'ledgerattend.firebaseapp.com',
-    storageBucket: 'ledgerattend.firebasestorage.app',
+    appId: dotenv.env['FIREBASE_APP_ID_WINDOWS']!,
+    messagingSenderId: dotenv.env['FIREBASE_MESSAGING_SENDER_ID']!,
+    projectId: dotenv.env['FIREBASE_PROJECT_ID']!,
+    authDomain: dotenv.env['FIREBASE_AUTH_DOMAIN'],
+    storageBucket: dotenv.env['FIREBASE_STORAGE_BUCKET'],
   );
 }

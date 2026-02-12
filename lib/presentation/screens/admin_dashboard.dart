@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'event_list_screen.dart';
+import 'package:ledger_attend/data/services/auth_service.dart';
+import 'package:ledger_attend/presentation/screens/login_screen.dart';
+import 'package:ledger_attend/presentation/screens/event_list_screen.dart'; // Import added
 
 class AdminDashboard extends StatelessWidget {
   const AdminDashboard({super.key});
@@ -9,8 +11,19 @@ class AdminDashboard extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Admin Dashboard'),
-        centerTitle: true,
-        elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () async {
+              await AuthService().signOut();
+              if (context.mounted) {
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (context) => const LoginScreen()),
+                );
+              }
+            },
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -74,8 +87,16 @@ class AdminDashboard extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const EventListScreen()),
+                            builder: (context) => EventListScreen()),
                       );
+                    },
+                  ),
+                  _DashboardCard(
+                    icon: Icons.assignment,
+                    title: 'Ledger',
+                    color: Colors.teal,
+                    onTap: () {
+                      Navigator.pushNamed(context, '/admin-reports');
                     },
                   ),
                 ],
