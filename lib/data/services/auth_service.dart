@@ -12,7 +12,7 @@ class AuthService {
       // Query collection group 'assigned_members' where document ID is the email
       // Note: Collection Group queries on document ID are not directly supported via 'where' clause on FieldPath.documentId in Client SDK easily for existence tick across parents.
       // Instead, we query where 'email' field == email, which we added to the document.
-      
+
       final QuerySnapshot result = await _firestore
           .collectionGroup('assigned_members')
           .where('email', isEqualTo: email.toLowerCase())
@@ -39,13 +39,12 @@ class AuthService {
           password.isNotEmpty &&
           name.isNotEmpty &&
           role.isNotEmpty) {
-        
         // Security Check for Students
         if (role == 'student') {
-           bool allowed = await isEmailAllowed(email);
-           if (!allowed) {
-             return "Not Authorized: Your email is not in the assigned members list.";
-           }
+          bool allowed = await isEmailAllowed(email);
+          if (!allowed) {
+            return "Access Denied: You are not registered for any events.";
+          }
         }
 
         // Register user
@@ -101,10 +100,12 @@ class AuthService {
     try {
       User? user = _auth.currentUser;
       if (user != null) {
-        DocumentSnapshot snap =
-            await _firestore.collection('users').doc(user.uid).get();
+        DocumentSnapshot snap = await _firestore
+            .collection('users')
+            .doc(user.uid)
+            .get();
         if (snap.exists) {
-            role = (snap.data() as Map<String, dynamic>)['role'] ?? 'student';
+          role = (snap.data() as Map<String, dynamic>)['role'] ?? 'student';
         }
       }
     } catch (e) {

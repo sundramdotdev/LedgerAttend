@@ -7,9 +7,7 @@ class EventListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('All Events'),
-      ),
+      appBar: AppBar(title: const Text('All Events')),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('events')
@@ -26,10 +24,7 @@ class EventListScreen extends StatelessWidget {
 
           if (snapshot.data!.docs.isEmpty) {
             return const Center(
-              child: Text(
-                'No events found',
-                style: TextStyle(fontSize: 18),
-              ),
+              child: Text('No events found', style: TextStyle(fontSize: 18)),
             );
           }
 
@@ -38,18 +33,19 @@ class EventListScreen extends StatelessWidget {
             itemBuilder: (context, index) {
               final doc = snapshot.data!.docs[index];
               final data = doc.data() as Map<String, dynamic>;
-              
+
               final String eventName = data['eventName'] ?? 'Unnamed Event';
               final String eventDescription = data['eventDescription'] ?? '';
               final GeoPoint? location = data['location'];
-              
+
               return Card(
                 margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 child: ListTile(
-                  leading: const CircleAvatar(
-                    child: Icon(Icons.event),
+                  leading: const CircleAvatar(child: Icon(Icons.event)),
+                  title: Text(
+                    eventName,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  title: Text(eventName, style: const TextStyle(fontWeight: FontWeight.bold)),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -62,14 +58,21 @@ class EventListScreen extends StatelessWidget {
                       if (location != null)
                         Text(
                           'Loc: ${location.latitude.toStringAsFixed(4)}, ${location.longitude.toStringAsFixed(4)}',
-                          style: const TextStyle(fontSize: 12, color: Colors.grey),
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey,
+                          ),
                         ),
                     ],
                   ),
                   isThreeLine: true,
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                   onTap: () {
-                    // Navigate to event details if needed
+                    Navigator.pushNamed(
+                      context,
+                      '/member-list',
+                      arguments: {'eventId': doc.id, 'eventName': eventName},
+                    );
                   },
                 ),
               );

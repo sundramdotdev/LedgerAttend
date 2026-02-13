@@ -41,11 +41,12 @@ class _AddMemberScreenState extends State<AddMemberScreen> {
       if (result != null) {
         // Show Progress Dialog
         if (mounted) {
-            showDialog(
+          showDialog(
             context: context,
             barrierDismissible: false,
-            builder: (context) => const Center(child: CircularProgressIndicator()),
-            );
+            builder: (context) =>
+                const Center(child: CircularProgressIndicator()),
+          );
         }
 
         final file = File(result.files.single.path!);
@@ -84,12 +85,15 @@ class _AddMemberScreenState extends State<AddMemberScreen> {
           batch.set(docRef, {
             'name': name,
             'rollNo': rollNo,
-            'course': section, 
+            'course': section,
             'mobile': mobile,
             'email': email,
-            'addedAt': FieldValue.serverTimestamp(),
             'eventId': _selectedEventId,
           });
+
+          debugPrint(
+            'Member saved to: events/$_selectedEventId/assigned_members/$email',
+          );
 
           successCount++;
           batchCount++;
@@ -109,27 +113,29 @@ class _AddMemberScreenState extends State<AddMemberScreen> {
 
         if (mounted) {
           Navigator.pop(context); // Close Progress Dialog
-          
+
           showDialog(
             context: context,
             builder: (context) => AlertDialog(
               title: const Text("Import Complete"),
               content: Text("Successfully imported $successCount items."),
               actions: [
-                TextButton(onPressed: () => Navigator.pop(context), child: const Text("OK"))
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text("OK"),
+                ),
               ],
             ),
           );
         }
-
       }
     } catch (e) {
       if (mounted) {
-         // Close dialog if likely open, but safer to just show snackbar
-         Navigator.of(context, rootNavigator: true).pop(); 
-         ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error importing CSV: $e')),
-         );
+        // Close dialog if likely open, but safer to just show snackbar
+        Navigator.of(context, rootNavigator: true).pop();
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error importing CSV: $e')));
       }
     }
   }
@@ -151,9 +157,9 @@ class _AddMemberScreenState extends State<AddMemberScreen> {
       await Share.shareXFiles([XFile(path)], text: 'Student Upload Template');
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error sharing template: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error sharing template: $e')));
       }
     }
   }
@@ -161,7 +167,9 @@ class _AddMemberScreenState extends State<AddMemberScreen> {
   Future<void> _submitMember() async {
     if (_formKey.currentState!.validate()) {
       if (_selectedEventId == null) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Select an event')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Select an event')));
         return;
       }
 
@@ -173,25 +181,35 @@ class _AddMemberScreenState extends State<AddMemberScreen> {
             .collection('assigned_members')
             .doc(email)
             .set({
-          'name': _nameController.text.trim(),
-          'rollNo': _rollNoController.text.trim(),
-          'course': _courseController.text.trim(),
-          'mobile': _mobileController.text.trim(),
-          'email': email,
-          'addedAt': FieldValue.serverTimestamp(),
-          'eventId': _selectedEventId,
-        });
+              'name': _nameController.text.trim(),
+              'rollNo': _rollNoController.text.trim(),
+              'course': _courseController.text.trim(),
+              'mobile': _mobileController.text.trim(),
+              'email': email,
+              'assignedAt': FieldValue.serverTimestamp(),
+              'eventId': _selectedEventId,
+            });
+
+        debugPrint(
+          'Member saved to: events/$_selectedEventId/assigned_members/$email',
+        );
 
         if (mounted) {
-           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Member Added Successfully')));
-           _nameController.clear();
-           _rollNoController.clear();
-           _courseController.clear();
-           _mobileController.clear();
-           _emailController.clear();
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Member Added Successfully')),
+          );
+          _nameController.clear();
+          _rollNoController.clear();
+          _courseController.clear();
+          _mobileController.clear();
+          _emailController.clear();
         }
       } catch (e) {
-        if(mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+        if (mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Error: $e')));
+        }
       }
     }
   }
@@ -199,9 +217,7 @@ class _AddMemberScreenState extends State<AddMemberScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Add Member to Event'),
-      ),
+      appBar: AppBar(title: const Text('Add Member to Event')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
@@ -209,7 +225,7 @@ class _AddMemberScreenState extends State<AddMemberScreen> {
             key: _formKey,
             child: Column(
               children: [
-                // Event Dropdown 
+                // Event Dropdown
                 StreamBuilder<QuerySnapshot>(
                   stream: FirebaseFirestore.instance
                       .collection('events')
@@ -239,17 +255,23 @@ class _AddMemberScreenState extends State<AddMemberScreen> {
                       hint: const Text('Select Event'),
                       items: eventItems,
                       onChanged: (value) {
-                         setState(() { _selectedEventId = value; });
+                        setState(() {
+                          _selectedEventId = value;
+                        });
                       },
-                      decoration: const InputDecoration(border: OutlineInputBorder(), filled: true),
-                      validator: (value) => value == null ? 'Please select an event' : null,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        filled: true,
+                      ),
+                      validator: (value) =>
+                          value == null ? 'Please select an event' : null,
                     );
                   },
                 ),
-                
+
                 const SizedBox(height: 16),
-                
-                  // BULK IMPORT SECTION
+
+                // BULK IMPORT SECTION
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
@@ -259,7 +281,10 @@ class _AddMemberScreenState extends State<AddMemberScreen> {
                   ),
                   child: Column(
                     children: [
-                      const Text("Bulk Import", style: TextStyle(fontWeight: FontWeight.bold)),
+                      const Text(
+                        "Bulk Import",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
                       const SizedBox(height: 8),
                       // ...
                       Row(
@@ -282,39 +307,64 @@ class _AddMemberScreenState extends State<AddMemberScreen> {
                 ),
 
                 const SizedBox(height: 24),
-                const Row(children: [Expanded(child: Divider()), Padding(padding: EdgeInsets.symmetric(horizontal: 8), child: Text("OR Manually Add")), Expanded(child: Divider())]),
+                const Row(
+                  children: [
+                    Expanded(child: Divider()),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 8),
+                      child: Text("OR Manually Add"),
+                    ),
+                    Expanded(child: Divider()),
+                  ],
+                ),
                 const SizedBox(height: 24),
 
                 // Student Details Form
                 TextFormField(
                   controller: _nameController,
-                  decoration: const InputDecoration(labelText: 'Student Name', border: OutlineInputBorder()),
+                  decoration: const InputDecoration(
+                    labelText: 'Student Name',
+                    border: OutlineInputBorder(),
+                  ),
                   validator: (v) => v!.isEmpty ? 'Required' : null,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _rollNoController,
-                  decoration: const InputDecoration(labelText: 'Roll No', border: OutlineInputBorder()),
+                  decoration: const InputDecoration(
+                    labelText: 'Roll No',
+                    border: OutlineInputBorder(),
+                  ),
                   validator: (v) => v!.isEmpty ? 'Required' : null,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _courseController,
-                  decoration: const InputDecoration(labelText: 'Course / Section', border: OutlineInputBorder()),
+                  decoration: const InputDecoration(
+                    labelText: 'Course / Section',
+                    border: OutlineInputBorder(),
+                  ),
                   validator: (v) => v!.isEmpty ? 'Required' : null,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _mobileController,
                   keyboardType: TextInputType.phone,
-                  decoration: const InputDecoration(labelText: 'Mobile No', border: OutlineInputBorder()),
+                  decoration: const InputDecoration(
+                    labelText: 'Mobile No',
+                    border: OutlineInputBorder(),
+                  ),
                   validator: (v) => v!.isEmpty ? 'Required' : null,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
-                  decoration: const InputDecoration(labelText: 'Email Address', border: OutlineInputBorder(), hintText: 'This will be their login ID'),
+                  decoration: const InputDecoration(
+                    labelText: 'Email Address',
+                    border: OutlineInputBorder(),
+                    hintText: 'This will be their login ID',
+                  ),
                   validator: (v) {
                     if (v == null || v.isEmpty) return 'Required';
                     if (!v.contains('@')) return 'Invalid Email';
@@ -327,7 +377,10 @@ class _AddMemberScreenState extends State<AddMemberScreen> {
                   height: 50,
                   child: ElevatedButton(
                     onPressed: _submitMember,
-                    child: const Text('Add Member', style: TextStyle(fontSize: 18)),
+                    child: const Text(
+                      'Add Member',
+                      style: TextStyle(fontSize: 18),
+                    ),
                   ),
                 ),
               ],

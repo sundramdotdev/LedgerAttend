@@ -21,18 +21,28 @@ class StudentHistoryScreen extends StatelessWidget {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("My Attendance"),
-      ),
+      appBar: AppBar(title: const Text("My Attendance")),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('attendance')
-            .where('email', isEqualTo: _currentUserEmail) // Filter by logged in student
+            .where(
+              'email',
+              isEqualTo: _currentUserEmail?.trim().toLowerCase(),
+            ) // Normalize email
             .orderBy('timestamp', descending: true)
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
-            return Center(child: Text("Error: ${snapshot.error}"));
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  "Error: ${snapshot.error}",
+                  style: const TextStyle(color: Colors.red),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            );
           }
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -59,11 +69,18 @@ class StudentHistoryScreen extends StatelessWidget {
                     children: [
                       const Text(
                         "Total Sessions",
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       Text(
                         "$totalCount",
-                        style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.blue),
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blue,
+                        ),
                       ),
                     ],
                   ),
@@ -76,17 +93,21 @@ class StudentHistoryScreen extends StatelessWidget {
                   itemCount: records.length,
                   itemBuilder: (context, index) {
                     final data = records[index].data() as Map<String, dynamic>;
-                    
-                    final String eventName = data['eventName'] ?? 'Unknown Event';
+
+                    final String eventName =
+                        data['eventName'] ?? 'Unknown Event';
                     final Timestamp? ts = data['timestamp'];
                     final String selfieUrl = data['selfieUrl'] ?? '';
-                    
-                    final String dtStr = ts != null 
-                        ? DateFormat('MMM d, y • h:mm a').format(ts.toDate()) 
+
+                    final String dtStr = ts != null
+                        ? DateFormat('MMM d, y • h:mm a').format(ts.toDate())
                         : 'Unknown Date';
 
                     return Card(
-                      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      margin: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
                       child: ListTile(
                         leading: GestureDetector(
                           onTap: () {
@@ -94,20 +115,33 @@ class StudentHistoryScreen extends StatelessWidget {
                               showDialog(
                                 context: context,
                                 builder: (ctx) => Dialog(
-                                  child: Image.network(selfieUrl, fit: BoxFit.contain),
+                                  child: Image.network(
+                                    selfieUrl,
+                                    fit: BoxFit.contain,
+                                  ),
                                 ),
                               );
                             }
                           },
                           child: CircleAvatar(
                             backgroundColor: Colors.grey.shade200,
-                            backgroundImage: selfieUrl.isNotEmpty ? NetworkImage(selfieUrl) : null,
-                            child: selfieUrl.isEmpty ? const Icon(Icons.person) : null,
+                            backgroundImage: selfieUrl.isNotEmpty
+                                ? NetworkImage(selfieUrl)
+                                : null,
+                            child: selfieUrl.isEmpty
+                                ? const Icon(Icons.person)
+                                : null,
                           ),
                         ),
-                        title: Text(eventName, style: const TextStyle(fontWeight: FontWeight.bold)),
+                        title: Text(
+                          eventName,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
                         subtitle: Text(dtStr),
-                        trailing: const Icon(Icons.verified, color: Colors.green),
+                        trailing: const Icon(
+                          Icons.verified,
+                          color: Colors.green,
+                        ),
                       ),
                     );
                   },
